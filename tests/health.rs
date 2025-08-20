@@ -6,7 +6,7 @@ async fn health_works() {
     let client = reqwest::Client::new();
 
     let response = client
-        .get(&format!("{}/health", &address))
+        .get(&format!("{}/health_check", &address))
         .send()
         .await
         .expect("Failed to ececute");
@@ -31,9 +31,9 @@ async fn subscribe_return_200_for_valid_form_data() {
     let app_address = spawn_app();
     let client = reqwest::Client::new();
 
-    let body = "name=kumar%20ujjawal&email=ujjawalpathak6%40gmail.com";
+    let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
     let response = client
-        .post(&format!("{}/subscription", &app_address))
+        .post(&format!("{}/subscriptions", &app_address))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
@@ -56,7 +56,7 @@ async fn subscribe_return_400_when_data_is_missing() {
 
     for (invalid_body, error_messages) in test_cases {
         let response = client
-            .post(&format!("{}/subscription", &app_address))
+            .post(&format!("{}/subscriptions", &app_address))
             .header("Content-Type", "application/x-www-form-urlencoded")
             .body(invalid_body)
             .send()
@@ -64,9 +64,9 @@ async fn subscribe_return_400_when_data_is_missing() {
             .expect("Failed to execute request");
 
         assert_eq!(
-            404,
+            400,
             response.status().as_u16(),
-            "Did not fail with 400 when payload was {}",
+            "The API did not fail with 400 when payload was {}",
             error_messages
         );
     }
