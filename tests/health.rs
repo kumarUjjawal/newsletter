@@ -1,3 +1,5 @@
+use newsletter::configuration::get_configuration;
+use sqlx::{Connection, PgConnection};
 use std::net::TcpListener;
 
 #[tokio::test]
@@ -29,6 +31,13 @@ fn spawn_app() -> String {
 #[tokio::test]
 async fn subscribe_return_200_for_valid_form_data() {
     let app_address = spawn_app();
+    let configuration = get_configuration().expect("Failed to get configuration");
+    let connection_string = configuration.database.connection_string();
+    println!("Connection String {}", &connection_string);
+    let connection = PgConnection::connect(&connection_string)
+        .await
+        .expect("Failed to connect to postgres");
+    println!("Connection {:?}", &connection);
     let client = reqwest::Client::new();
 
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
@@ -38,8 +47,8 @@ async fn subscribe_return_200_for_valid_form_data() {
         .body(body)
         .send()
         .await
-        .expect("Failed to execute request");
-
+        .expect("Failed to execute request.");
+    // Assert
     assert_eq!(200, response.status().as_u16());
 }
 
